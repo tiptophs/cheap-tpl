@@ -12,6 +12,9 @@ const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 //引入webpack
 const webpack = require('webpack')
+//引入开发常用插件，copy,clean,banner(内置)
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');  //该插件不能和watch一起使用
+const CopyPlugin = require('copy-webpack-plugin')
 //引入vue-laoder处理vue组件
 //const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
@@ -62,30 +65,6 @@ module.exports = {
             }),
         ]    
     },
-    //数组，用于存放所有的webpack插件，插件是一个类所以要大写，并且要new
-    plugins:[
-        new HtmlWebpackPlugin({
-            template: './public/index.html',    //指定依赖的模板文件
-            filename: 'index.html',             //生成的文件名称
-            minify: {                           //html的处理
-                removeAttributeQuotes:true,     //删除多余的双引号
-                collapseWhitespace:true,        //html压缩成一行
-            },
-            hash:true,                           //hash
-            //chunks:[]                          //多文件打包，内部填写name名称
-            //excludeChunks:[]                        //忽略的模块
-        }),
-        //css生成link的形式引入
-        new MiniCssExtractPlugin({
-            filename: 'css/bundle.[hash:8].css'
-        }),
-        //webpack提供插件
-        new webpack.ProvidePlugin({
-            $ : 'jquery'
-        })
-        //vue-plugin
-        //new VueLoaderPlugin()
-    ],
     //不需要打包的模块
     externals:{
         jquery: 'jQuery'    //采用cdn等方式引入。
@@ -163,6 +142,43 @@ module.exports = {
             //   loader: 'vue-loader'
             // }
         ]
-    }
+    },
+    //数组，用于存放所有的webpack插件，插件是一个类所以要大写，并且要new
+    plugins:[
+        new HtmlWebpackPlugin({
+            template: './public/index.html',    //指定依赖的模板文件
+            filename: 'index.html',             //生成的文件名称
+            minify: {                           //html的处理
+                removeAttributeQuotes:true,     //删除多余的双引号
+                collapseWhitespace:true,        //html压缩成一行
+            },
+            hash:true,                           //hash
+            //chunks:[]                          //多文件打包，内部填写name名称
+            //excludeChunks:[]                        //忽略的模块
+        }),
+        //css生成link的形式引入
+        new MiniCssExtractPlugin({
+            filename: 'css/bundle.[hash:8].css'
+        }),
+        //webpack提供插件
+        new webpack.ProvidePlugin({
+            $ : 'jquery'
+        }),
+        //clean
+        new CleanWebpackPlugin(),
+        //copy
+        new CopyPlugin({
+            patterns: [
+                { 
+                    from: './src/assets',
+                    to: './assets' 
+                }
+            ],
+        }),
+        //banner
+        new webpack.BannerPlugin('this is a esay test')
+        //vue-plugin
+        //new VueLoaderPlugin()
+    ]
     
 }
