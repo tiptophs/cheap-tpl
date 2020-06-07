@@ -10,6 +10,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 //引入uglify
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+//引入webpack
+const webpack = require('webpack')
 //引入vue-laoder处理vue组件
 //const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
@@ -25,12 +27,29 @@ module.exports = {
         //open: true,  //自动在浏览器内打开
         compress:true   //Gzip压缩
     },
-    //入口地址
+    //增加映射文件
+    //source-map 增加映射文件，大全
+    //eval-source-map 不会生成文件，但可以显示行和列，集成在生成的js内部
+    //cheap-module-source-map不会产生列，但是是一个单独的映射文件,保留下来调试
+    //cheap-module-eval-source-map 不会产生列，不会生成文件，集成在js内部
+    devtool: 'source-map',   //增加映射文件可以帮助我们调整代码
+    //watch监控，可以生成文件,build后会检测文件，也可以设置npm run watch
+    //watch:true,
+    //每秒1000次，防抖500
+    //watchOptions:{poll:1000, aggrgateTimeout:500， ignored:/node_modules/ }
+    //入口地址, 多入口模式
+    /**
+     * entry:{
+     *  name:[a, b]
+     *  name:a
+     * }
+     */
     entry: ['./src/main.js'],
     //输出地址
     output:{
-        filename:'bundle.[hash:8].js',    //打包后的文件名称,[hash:8]生成版本hash，8设置长度
-        path: path.resolve(__dirname, 'dist')     //输出路径必须是一个绝对路径
+        filename:'js/bundle.[hash:8].js',    //打包后的文件名称,[hash:8]生成版本hash，8设置长度  多文件打包[name].js
+        path: path.resolve(__dirname, 'dist'),     //输出路径必须是一个绝对路径
+        publicPath: './'
     },
     //webpack4.0 新增优化项目, 这里的优化项在production环境下才生效
     optimization:{
@@ -52,15 +71,25 @@ module.exports = {
                 removeAttributeQuotes:true,     //删除多余的双引号
                 collapseWhitespace:true,        //html压缩成一行
             },
-            hash:true                           //hash
+            hash:true,                           //hash
+            //chunks:[]                          //多文件打包，内部填写name名称
+            //excludeChunks:[]                        //忽略的模块
         }),
         //css生成link的形式引入
         new MiniCssExtractPlugin({
-            filename: 'bundle.[hash:8].css'
+            filename: 'css/bundle.[hash:8].css'
+        }),
+        //webpack提供插件
+        new webpack.ProvidePlugin({
+            $ : 'jquery'
         })
         //vue-plugin
         //new VueLoaderPlugin()
     ],
+    //不需要打包的模块
+    externals:{
+        jquery: 'jQuery'    //采用cdn等方式引入。
+    },
     //模块，用于处理相应文件的loader
     module:{
         rules: [    //规则
@@ -111,7 +140,24 @@ module.exports = {
             //             enforce: 'pre' //previous前， post后
             //         }
             //     }
-            // }
+            // },
+            //处理图片,file-loader, 需要base-64的化采用url-loader
+            {
+                test: /\.(jpg|png|gif)$/,
+                use:{
+                    loader: 'url-loader',
+                    options:{
+                        limit:200*1024,
+                        outputPath: 'img/',
+                        // publicPath:''    //单独添加地址前缀
+                    }
+                }
+            },
+            {
+                test: /\.html$/,
+                use: 'html-withimg-loader'
+            }
+
             // {
             //   test: /\.vue$/,
             //   loader: 'vue-loader'
