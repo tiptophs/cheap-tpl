@@ -16,7 +16,7 @@ const webpack = require('webpack')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');  //该插件不能和watch一起使用
 const CopyPlugin = require('copy-webpack-plugin')
 //引入vue-laoder处理vue组件
-//const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 
 module.exports = {
@@ -135,12 +135,12 @@ module.exports = {
             {
                 test: /\.html$/,
                 use: 'html-withimg-loader'
+            },
+            //处理vue文件
+            {
+              test: /\.vue$/,
+              loader: 'vue-loader'
             }
-
-            // {
-            //   test: /\.vue$/,
-            //   loader: 'vue-loader'
-            // }
         ]
     },
     //数组，用于存放所有的webpack插件，插件是一个类所以要大写，并且要new
@@ -165,7 +165,7 @@ module.exports = {
             $ : 'jquery'
         }),
         //clean
-        new CleanWebpackPlugin(),
+        //new CleanWebpackPlugin(),
         //copy
         new CopyPlugin({
             patterns: [
@@ -176,9 +176,9 @@ module.exports = {
             ],
         }),
         //banner
-        new webpack.BannerPlugin('this is a esay test')
+        new webpack.BannerPlugin('this is a esay test'),
         //vue-plugin
-        //new VueLoaderPlugin()
+        new VueLoaderPlugin()
     ]
     
 }
