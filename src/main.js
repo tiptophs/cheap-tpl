@@ -10,3 +10,16 @@ Vue.config.productionTip = false
 new Vue({
   render: h => h(App),
 }).$mount('#app')
+
+
+//模拟http请求，演示proxy
+let xhr = new XMLHttpRequest();
+//请求
+xhr.open('GET', '/api/user', true);
+//加载之后
+xhr.onload = function(){
+  console.log(xhr.response);
+}
+//发送
+xhr.send();
+

@@ -24,11 +24,34 @@ module.exports = {
     mode:'production',
     //开发服务器的配置
     devServer:{
-        port:3000,  //端口
+        port:8080,  //端口
         progress:true,  //打包显示进度条
         contentBase: './dist',  //内存打包的地址
         //open: true,  //自动在浏览器内打开
-        compress:true   //Gzip压缩
+        compress:true,   //Gzip压缩
+        // proxy:{         //添加代理转发
+        //    '/api':{
+        //        target: 'http://localhost:3000',
+        //        pathRewrite: {'/api': ''}
+        //    } 
+        // },
+        before(app){    //mock数据的方式
+            app.get('/user', (req, res)=>{
+                res.json({
+                    name: '接口测试'
+                })
+            })
+        }
+    },
+    resolve:{   //解析，第三方common
+        modules:[path.resolve('node_modules')],
+        alias:{ //别名 
+            'bootstrap':'bootstrap/dist/css/bootstrap.css'
+        },
+        //扩展名称
+        extensions:['.js', '.css', '.vue']
+        //mainFileds:['style', 'main'],  //默认查找优先级别
+        //mainFiles:[]    //入口文件名称index.jss
     },
     //增加映射文件
     //source-map 增加映射文件，大全
@@ -72,6 +95,15 @@ module.exports = {
     //模块，用于处理相应文件的loader
     module:{
         rules: [    //规则
+            {
+                test: /\.css$/,
+                use:[
+                    MiniCssExtractPlugin.loader,
+                    //'style-loader',   //这里也可以采用对象的形式，可以传递额外的参数
+                    'css-loader',
+                    'postcss-loader',   //自动添加前缀    
+                ]
+            },
             //css-loader 解析@import这种语法(css内部应用css文件)
             //style-loader 把css插入到head标签中
             //loader特定希望单一化
