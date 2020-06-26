@@ -210,7 +210,13 @@ module.exports = {
         //banner
         new webpack.BannerPlugin('this is a esay test'),
         //vue-plugin
-        new VueLoaderPlugin()
+        new VueLoaderPlugin(),
+        //webpack自带的环境变量插件
+        new webpack.DefinePlugin({
+            DEV: JSON.stringify('dev'),
+            FLAG: 'true',
+            EXPRESSION: '1+1'
+        })
     ]
     
 }
