@@ -43,6 +43,7 @@ module.exports = {
             })
         }
     },
+    noParse: '/jquery/',   //webpack打包的时候不去解析jquery
     resolve:{   //解析，第三方common
         modules:[path.resolve('node_modules')],
         alias:{ //别名 
@@ -128,6 +129,8 @@ module.exports = {
             //处理js文件
             {
                 test: /\.js$/,
+                exclude: /node_module/,     //排除文件
+                include: path.resolve('src'), //包含文件
                 use:{
                     loader: 'babel-loader',
                     options:{   //用babel-loader把es6->es5,也可以写入到外部文件babel.config.js
