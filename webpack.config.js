@@ -8,51 +8,55 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 //引入css优化插件，让打包的css文件压缩
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
-//引入uglify
+//引入uglify, 让js文件压缩
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-//引入webpack
+//引入webpack, 这样可以采用webpack的内部插件
 const webpack = require('webpack')
-//引入开发常用插件，copy,clean,banner(内置)
+
+//引入开发常用插件copy,clean,banner(内置)
+//clean 运行的时候会先删除指定的目录
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');  //该插件不能和watch一起使用
+//将资源copy到指定的目录，一般用于处理静态资源
 const CopyPlugin = require('copy-webpack-plugin')
 //引入vue-laoder处理vue组件
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 
+//webpack 配置
 module.exports = {
     //开发模式(production生产模式， development开发模式)
-    mode:'production',
+    mode:'development',
     //开发服务器的配置
     devServer:{
-        port:8080,  //端口
-        progress:true,  //打包显示进度条
+        port:3000,  //端口
+        //progress:true,  //打包显示进度条
         contentBase: './dist',  //内存打包的地址
-        //open: true,  //自动在浏览器内打开
-        compress:true,   //Gzip压缩
+        //open: true,  //运行服务后自动在浏览器内打开
+        //compress:true,   //Gzip压缩
         // proxy:{         //添加代理转发
         //    '/api':{
-        //        target: 'http://localhost:3000',
-        //        pathRewrite: {'/api': ''}
+        //        target: 'http://localhost:3000',  //将/api代理到3000端口
+        //        pathRewrite: {'/api': ''}         //将api替换为空
         //    } 
         // },
-        before(app){    //mock数据的方式
-            app.get('/user', (req, res)=>{
-                res.json({
-                    name: '接口测试'
-                })
-            })
-        }
+        // before(app){    //mock数据的方式, 内部自带一个express
+        //     app.get('/user', (req, res)=>{
+        //         res.json({
+        //             name: '接口测试'
+        //         })
+        //     })
+        // }
     },
-    noParse: '/jquery/',   //webpack打包的时候不去解析jquery
+    //noParse: '/jquery/',   //webpack打包的时候不去解析jquery,这里采用的是正则匹配（优化项，还是会走webpack但不会再次编译）
     resolve:{   //解析，第三方common
-        modules:[path.resolve('node_modules')],
-        alias:{ //别名 
-            'bootstrap':'bootstrap/dist/css/bootstrap.css'
-        },
-        //扩展名称
-        extensions:['.js', '.css', '.vue']
-        //mainFileds:['style', 'main'],  //默认查找优先级别
-        //mainFiles:[]    //入口文件名称index.jss
+        modules:[path.resolve('node_modules')], //指定解析的模块
+        // alias:{ //别名, 采用这种方式后就不用输出后面的路径直接import前面的bootstrap即可
+        //     'bootstrap':'bootstrap/dist/css/bootstrap.css'
+        // },
+        //扩展名称, import的文件不用输出后缀, 默认顺寻从左到右
+        extensions:['.js', '.css', '.vue'],
+        //mainFileds:['style', 'main'],  //默认查找优先级别(package.json文件)
+        //mainFiles:[]    //入口文件名称index.js
     },
     //增加映射文件
     //source-map 增加映射文件，大全
@@ -80,14 +84,14 @@ module.exports = {
     },
     //webpack4.0 新增优化项目, 这里的优化项在production环境下才生效
     optimization:{
-        minimizer:[
-            new OptimizeCssAssetsPlugin({}),
-            new UglifyJsPlugin({
-                parallel: true,     //并发打包
-                sourceMap: true,    //源码映射
-                cache:true          //启用缓存
-            }),
-        ]    
+        // minimizer:[
+        //     new OptimizeCssAssetsPlugin({}),
+        //     new UglifyJsPlugin({
+        //         parallel: true,     //并发打包
+        //         sourceMap: true,    //源码映射
+        //         cache:true          //启用缓存
+        //     }),
+        // ]    
     },
     //不需要打包的模块
     externals:{
@@ -129,8 +133,6 @@ module.exports = {
             //处理js文件
             {
                 test: /\.js$/,
-                exclude: /node_module/,     //排除文件
-                include: path.resolve('src'), //包含文件
                 use:{
                     loader: 'babel-loader',
                     options:{   //用babel-loader把es6->es5,也可以写入到外部文件babel.config.js
@@ -184,8 +186,8 @@ module.exports = {
             template: './public/index.html',    //指定依赖的模板文件
             filename: 'index.html',             //生成的文件名称
             minify: {                           //html的处理
-                removeAttributeQuotes:true,     //删除多余的双引号
-                collapseWhitespace:true,        //html压缩成一行
+                //removeAttributeQuotes:true,     //删除多余的双引号
+                //collapseWhitespace:true,        //html压缩成一行
             },
             hash:true,                           //hash
             //chunks:[]                          //多文件打包，内部填写name名称
@@ -196,30 +198,30 @@ module.exports = {
             filename: 'css/bundle.[hash:8].css'
         }),
         //webpack提供插件
-        new webpack.ProvidePlugin({
-            $ : 'jquery'
-        }),
+        // new webpack.ProvidePlugin({
+        //     $ : 'jquery'
+        // }),
         //clean
         //new CleanWebpackPlugin(),
         //copy
-        new CopyPlugin({
-            patterns: [
-                { 
-                    from: './src/assets',
-                    to: './assets' 
-                }
-            ],
-        }),
+        // new CopyPlugin({
+        //     patterns: [
+        //         { 
+        //             from: './src/assets',
+        //             to: './assets' 
+        //         }
+        //     ],
+        // }),
         //banner
         new webpack.BannerPlugin('this is a esay test'),
         //vue-plugin
         new VueLoaderPlugin(),
         //webpack自带的环境变量插件
-        new webpack.DefinePlugin({
-            DEV: JSON.stringify('dev'),
-            FLAG: 'true',
-            EXPRESSION: '1+1'
-        })
+        // new webpack.DefinePlugin({
+        //     DEV: JSON.stringify('dev'),
+        //     FLAG: 'true',
+        //     EXPRESSION: '1+1'
+        // })
     ]
     
 }
