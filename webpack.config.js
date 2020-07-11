@@ -63,7 +63,7 @@ module.exports = {
     //eval-source-map 不会生成文件，但可以显示行和列，集成在生成的js内部
     //cheap-module-source-map不会产生列，但是是一个单独的映射文件,保留下来调试
     //cheap-module-eval-source-map 不会产生列，不会生成文件，集成在js内部
-    devtool: 'source-map',   //增加映射文件可以帮助我们调整代码
+    //devtool: 'source-map',   //增加映射文件可以帮助我们调整代码
     //watch监控，可以生成文件,build后会检测文件，也可以设置npm run watch
     //watch:true,
     //每秒1000次，防抖500
@@ -79,7 +79,7 @@ module.exports = {
     //输出地址
     output:{
         filename:'js/bundle.[hash:8].js',    //打包后的文件名称,[hash:8]生成版本hash，8设置长度  多文件打包[name].js
-        path: path.resolve(__dirname, 'dist'),     //输出路径必须是一个绝对路径
+        path: path.resolve(__dirname, './dist'),     //输出路径必须是一个绝对路径
         publicPath: './'
     },
     //webpack4.0 新增优化项目, 这里的优化项在production环境下才生效
@@ -165,6 +165,7 @@ module.exports = {
                     options:{
                         limit:200*1024,
                         outputPath: 'img/',
+                        esModule:false,
                         // publicPath:''    //单独添加地址前缀
                     }
                 }
